@@ -80,4 +80,15 @@ function App() {
           </Routes>
         </Router>
 
-        {/* Toast Notifications
+        {/* Toast Notifications */}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          theme={darkMode ? "dark" : "light"}
+        />
+      </div>
+    </div>
+  );
+}
+
+export default App;
