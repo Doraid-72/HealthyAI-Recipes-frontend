@@ -1,3 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* يمكنك إضافة أنماط مخصصة هنا إذا أردت */
+body {
+  font-family: 'Tajawal', sans-serif; /* خط عربي أنيق */
+  background-color: #f9fafb; /* خلفية فاتحة */
+}
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

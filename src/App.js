@@ -1,87 +1,83 @@
-import React, { useState, useEffect } from "react";
-import "./App.css"; // ملف CSS خارجي للتصميم
-
-// تحديد رابط الـ backend تلقائيًا (محلي أو منشور)
-const backendUrl =
-  process.env.NODE_ENV === "production"
-    ? "https://healthyai-recipes-backend.onrender.com"
-    : "http://localhost:3000";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Admin from "./pages/Admin";
+import Supervisors from "./pages/Supervisors";
+import User from "./pages/User";
+import Recipes from "./pages/Recipes";
+import MyRecipes from "./pages/MyRecipes";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useState } from "react";
 
 function App() {
-  const [prompt, setPrompt] = useState("");
-  const [reply, setReply] = useState("");
-  const [requests, setRequests] = useState([]);
-
-  // إرسال الطلب إلى الـ backend
-  const sendPrompt = async () => {
-    try {
-      const res = await fetch(`${backendUrl}/api/ai`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      });
-      const data = await res.json();
-      setReply(data.reply);
-      fetchRequests();
-    } catch (error) {
-      console.error("Error sending prompt:", error);
-    }
-  };
-
-  // جلب الطلبات السابقة من الـ backend
-  const fetchRequests = async () => {
-    try {
-      const res = await fetch(`${backendUrl}/api/ai/requests`);
-      const data = await res.json();
-      setRequests(data);
-    } catch (error) {
-      console.error("Error fetching requests:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchRequests();
-  }, []);
+  const [darkMode, setDarkMode] = useState(false);
 
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <h1>HealthyAI Recipes</h1>
-        <p>ذكاء اصطناعي يقدم وصفات صحية دقيقة</p>
-      </header>
+    <div className={darkMode ? "dark" : ""}>
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white transition-colors">
+        <Router>
+          {/* زر التبديل بين الوضع الليلي والفاتح */}
+          <div className="flex justify-end p-4">
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 dark:bg-yellow-400 dark:text-black"
+            >
+              {darkMode ? "☀️ الوضع الفاتح" : "🌙 الوضع الليلي"}
+            </button>
+          </div>
 
-      <main className="app-main">
-        <textarea
-          className="prompt-box"
-          rows="4"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="أدخل مكوناتك أو سؤالك هنا..."
-        />
-        <button className="send-btn" onClick={sendPrompt}>
-          إرسال
-        </button>
+          {/* المسارات */}
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-        <section className="reply-section">
-          <h2>الرد الحالي:</h2>
-          <div className="reply-box">{reply}</div>
-        </section>
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRole="admin">
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
 
-        <section className="history-section">
-          <h2>الطلبات السابقة:</h2>
-          <ul>
-            {requests.map((req) => (
-              <li key={req.id} className="history-item">
-                <strong>طلب:</strong> {req.prompt} <br />
-                <strong>رد:</strong> {req.reply} <br />
-                <em>تاريخ:</em> {new Date(req.created_at).toLocaleString()}
-              </li>
-            ))}
-          </ul>
-        </section>
-      </main>
-    </div>
-  );
-}
+            <Route
+              path="/supervisors"
+              element={
+                <ProtectedRoute allowedRole="supervisor">
+                  <Supervisors />
+                </ProtectedRoute>
+              }
+            />
 
-export default App;
+            <Route
+              path="/user"
+              element={
+                <ProtectedRoute allowedRole="user">
+                  <User />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/recipes"
+              element={
+                <ProtectedRoute allowedRole="user">
+                  <Recipes />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/myrecipes"
+              element={
+                <ProtectedRoute allowedRole="user">
+                  <MyRecipes />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Router>
+
+        {/* Toast Notifications
