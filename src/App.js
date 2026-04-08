@@ -1,4 +1,7 @@
+import React, { useState, useEffect } from "react";
+import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
@@ -6,86 +9,50 @@ import Supervisors from "./pages/Supervisors";
 import User from "./pages/User";
 import Recipes from "./pages/Recipes";
 import MyRecipes from "./pages/MyRecipes";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useState } from "react";
+import Payment from "./pages/Payment";
+
+import Navbar from "./components/Navbar";
+import SplashScreen from "./components/SplashScreen";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const [language, setLanguage] = useState("ar");
+  const [loading, setLoading] = useState(true);
+
+  const toggleLanguage = () => {
+    setLanguage(language === "ar" ? "en" : "ar");
+  };
+
+  useEffect(() => {
+    document.title = language === "ar" ? "HealthyAI وصفات" : "HealthyAI Recipes";
+  }, [language]);
 
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white transition-colors">
-        <Router>
-          {/* زر التبديل بين الوضع الليلي والفاتح */}
-          <div className="flex justify-end p-4">
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 dark:bg-yellow-400 dark:text-black"
-            >
-              {darkMode ? "☀️ الوضع الفاتح" : "🌙 الوضع الليلي"}
-            </button>
-          </div>
-
-          {/* المسارات */}
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute allowedRole="admin">
-                  <Admin />
-                </ProtectedRoute>
-              }
+        {loading ? (
+          <SplashScreen onFinish={() => setLoading(false)} />
+        ) : (
+          <Router>
+            <Navbar
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+              language={language}
+              toggleLanguage={toggleLanguage}
             />
 
-            <Route
-              path="/supervisors"
-              element={
-                <ProtectedRoute allowedRole="supervisor">
-                  <Supervisors />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/user"
-              element={
-                <ProtectedRoute allowedRole="user">
-                  <User />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/recipes"
-              element={
-                <ProtectedRoute allowedRole="user">
-                  <Recipes />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/myrecipes"
-              element={
-                <ProtectedRoute allowedRole="user">
-                  <MyRecipes />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </Router>
-
-        {/* Toast Notifications */}
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          theme={darkMode ? "dark" : "light"}
-        />
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/supervisors" element={<Supervisors />} />
+              <Route path="/user" element={<User />} />
+              <Route path="/recipes" element={<Recipes />} />
+              <Route path="/myrecipes" element={<MyRecipes />} />
+              <Route path="/payment" element={<Payment />} />
+            </Routes>
+          </Router>
+        )}
       </div>
     </div>
   );
